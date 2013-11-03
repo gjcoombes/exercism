@@ -1,37 +1,47 @@
 # /usr/bin/env python
 
+def first(iterable):
+	for elem in iterable:
+		if elem:
+			return elem
+	return None
+
+def is_silence(words):
+	if not words or words.isspace():
+		return "silence"
+
+def is_shout(words):
+	if words.isupper():
+		return "shout"
+
+def is_question(words):
+	if words.endswith('?'):
+		return "question"
+
+def is_default(words):
+	return "default"
 
 class Bob(object):
-	"""
-	I suspect that the most elegant solution will be a regex,
-	but this seems to be a reasonable start.
-
-	Better might be a sequence of predicates so extra responses can be easily sorted.
-	These predicates could be simple ifs or a regex
-	"""
 
 	def __init__(self):
 		self.name = "Bob"
 		self.nature = "lackadaisical"
+		self.response_map = {
+			"silence" : "Fine. Be that way!",
+			"shout"   : "Woah, chill out!",
+			"question": "Sure.",
+			"default" : "Whatever.",
+		}
+		self.request_ids = (
+			is_silence,
+			is_shout,
+			is_question,
+			is_default,
+		)
 
 	def hey(self, words):
-		if self._is_silence(words):
-			reply = "Fine. Be that way!"
-		elif self._is_shouting(words):
-			reply = "Woah, chill out!"
-		elif self._is_question(words):
-			reply = "Sure."
-		else:
-			reply = "Whatever."
-		return	reply
+		return first(self.responses(words))
 
-	def _is_silence(self, words):
-		return not words or words.isspace()
-
-	def _is_shouting(self, words):
-		return words.isupper()
-
-	def _is_question(self, words):
-		return words.endswith('?')
-
-
+	def responses(self, words):
+		for _id in self.request_ids:
+			yield self.response_map.get(_id(words))
